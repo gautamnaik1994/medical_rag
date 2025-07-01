@@ -5,3 +5,4 @@ __pycache__
 *.pyd
 vector_data/
 uploaded_files
+*.log

@@ -1,5 +1,6 @@
 
 
+import logging
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -7,6 +8,10 @@ from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 from dotenv import load_dotenv
+from modules.logger import logger
+
+logger = logging.getLogger("rag")
+
 load_dotenv()
 
 

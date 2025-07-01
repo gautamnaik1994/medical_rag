@@ -6,8 +6,11 @@ from fastapi.responses import JSONResponse
 from modules.rag import RagPipeline, QueryRAG
 from pydantic import BaseModel
 from modules.ocr import OCRPipeline
+import logging
+from modules.logger import logger
 app = FastAPI()
 
+logger = logging.getLogger("app")
 
 env = os.getenv("ENVIRONMENT", "production")
 
@@ -45,11 +48,13 @@ async def upload_pdf(request: Request, files: List[UploadFile] = File(...)):
                 f.write(content)
             ocr_pipeline = OCRPipeline(file_path)
             text_content = ocr_pipeline.run()
+            logger.info(f"Extracted text from {file.filename}")
             rag_pipeline = RagPipeline(text_content, doc_name=file.filename)
             rag_pipeline.build_index()
-
+            logger.info(f"Indexed file: {file.filename}")
         return JSONResponse(content={"message": "PDF files processed successfully."})
     except Exception as e:
+        logger.error(f"Error processing PDF files: {str(e)}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
@@ -63,6 +68,8 @@ async def query_rag(request: QueryRequest):
     try:
         query_rag = QueryRAG(doc_name=request.doc_name)
         result, source_documents = query_rag.query(request.question)
+        logger.debug(f"Query: {request.question} | Result: {result}")
         return JSONResponse(content={"result": result, "source_documents": [doc.metadata for doc in source_documents]})
     except Exception as e:
+        logger.error(f"Error querying RAG: {str(e)}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
