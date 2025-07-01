@@ -1,5 +1,3 @@
-
-
 import logging
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
