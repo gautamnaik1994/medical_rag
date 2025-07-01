@@ -12,3 +12,4 @@ __pycache__/
 notebooks/
 uploaded_files/
 vector_data/
+.langchain.db

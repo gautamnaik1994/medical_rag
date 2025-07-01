@@ -1,7 +1,6 @@
 import pytesseract
 import numpy as np
 import cv2
-import pandas as pd
 from collections import defaultdict
 import pymupdf
 import logging
@@ -63,7 +62,11 @@ class OCRPipeline:
                 else:
                     logger.info(
                         f"Page {page_number} has no text, running OCR.")
-                    self.text_data[page_number] = self.ocr_page(page)
+                    ocr_text = self.ocr_page(page)
+                    if ocr_text.strip():
+                        self.text_data[page_number] = ocr_text
+                    else:
+                        logger.info(f"Page {page_number} is empty, skipping.")
 
             return self.text_data
 

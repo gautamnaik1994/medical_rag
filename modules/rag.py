@@ -3,12 +3,16 @@
 import logging
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
+from langchain.globals import set_llm_cache
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 from dotenv import load_dotenv
 from modules.logger import logger
+from langchain_community.cache import SQLiteCache
+set_llm_cache(SQLiteCache(database_path=".langchain.db"))
+
 
 logger = logging.getLogger("rag")
 
@@ -51,8 +55,15 @@ class RagPipeline:
 class QueryRAG:
     def __init__(self, doc_name="input_pdf"):
         self.doc_name = doc_name
+
+        if not os.path.exists("vector_data/" + self.doc_name + "_faiss_index"):
+            raise FileNotFoundError(
+                f"Vector store for {self.doc_name} does not exist. Please build the index first.")
+
+        logger.info(f"Loading vector store for {self.doc_name} from disk.")
         self.vectorstore = FAISS.load_local("vector_data/" + self.doc_name + "_faiss_index", OpenAIEmbeddings(
             api_key=os.getenv("OPENAI_API_KEY")), allow_dangerous_deserialization=True)
+
         self.retriever = self.vectorstore.as_retriever(search_kwargs={"k": 3})
         self.llm = ChatOpenAI(
             model="gpt-3.5-turbo",

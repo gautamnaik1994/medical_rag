@@ -6,3 +6,4 @@ __pycache__
 vector_data/
 uploaded_files
 *.log
+.langchain.db
