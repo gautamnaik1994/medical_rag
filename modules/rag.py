@@ -11,10 +11,11 @@ from modules.logger import logger
 from langchain_community.cache import SQLiteCache
 set_llm_cache(SQLiteCache(database_path=".langchain.db"))
 
-
 logger = logging.getLogger("rag")
 
 load_dotenv()
+
+OPEN_AI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 class RagPipeline:
@@ -44,7 +45,7 @@ class RagPipeline:
                 all_documents.append(Document(page_content=chunk, metadata={
                                      "page": k, "source": self.doc_name}))
 
-        embeddings = OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
+        embeddings = OpenAIEmbeddings(api_key=OPEN_AI_API_KEY)
         self.vectorstore = FAISS.from_documents(all_documents, embeddings)
         self.vectorstore.save_local(
             "vector_data/" + self.doc_name + "_faiss_index")
@@ -60,7 +61,7 @@ class QueryRAG:
 
         logger.info(f"Loading vector store for {self.doc_name} from disk.")
         self.vectorstore = FAISS.load_local("vector_data/" + self.doc_name + "_faiss_index", OpenAIEmbeddings(
-            api_key=os.getenv("OPENAI_API_KEY")), allow_dangerous_deserialization=True)
+            api_key=OPEN_AI_API_KEY), allow_dangerous_deserialization=True)
 
         self.retriever = self.vectorstore.as_retriever(search_kwargs={"k": 3})
         self.llm = ChatOpenAI(
