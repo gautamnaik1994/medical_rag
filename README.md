@@ -34,7 +34,6 @@ Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/gautamnaik1994/medical_rag.git
 cd medical_rag
-pip install -r requirements.txt
 ```
 
 ### 3. Environment Variables
@@ -57,9 +56,8 @@ docker compose up --build
 
 #### Without Docker
 
-Run the FastAPI app directly:
-
 ```bash
+pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
